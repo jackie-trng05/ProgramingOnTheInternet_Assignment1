@@ -68,3 +68,9 @@ Another challenge was positioning and sizing the buttons for the study mode. Thi
 unexpectedly tricky as the buttons were inside a flex container that was inheriting the 
 card width and stretching the buttons to full height making them look weird. This required 
 wrapping them in a sepearte container div to break out of the flex context
+
+TEST LOGINS
+There are two test users seeded into the database on server start:
+
+- admin@example.com / admin
+- testuser@example.com / testuser

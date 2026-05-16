@@ -2,16 +2,24 @@
 const form = document.getElementById('flashcardForm');
 const flashcardsDiv = document.getElementById('flashcards');
 const addFlashcardSection = document.getElementById('addFlashcardSection');
+const addGroupBtn = document.getElementById('addGroupBtn');
 const toast = document.getElementById('toast');
 const confirmModal = document.getElementById('confirmModal');
 const confirmMessage = document.getElementById('confirmMessage');
 const confirmOkBtn = document.getElementById('confirmOk');
 const confirmCancelBtn = document.getElementById('confirmCancel');
 
-//Backend API based URL
-const backendURL = 'http://localhost:3000';
+// Backend API base URL (same origin or fallback to localhost)
+const backendURL = window.location.origin && window.location.origin !== 'null'
+  ? window.location.origin
+  : 'http://localhost:3000';
 
-//Variables that are used in study mode
+// Use the authFetch helper from login.js if available, otherwise fallback to native fetch.
+async function authFetch(url, options = {}) {
+  const helper = window.authFetch || ((u, o) => fetch(u, o));
+  return helper(url, options);
+}
+
 let studyPile = []; //Stores the cards being studied
 let currentIndex = 0; //Tracks the current card position
 
@@ -67,7 +75,8 @@ function showAddFlashCardSection() {
 //Loading groups from the backend and fills the drop down menu
 async function loadGroups() {
   try {
-    const res = await fetch(`${backendURL}/groups`);
+    const res = await authFetch(`${backendURL}/groups`);
+    if (!res.ok) throw new Error('Could not load groups');
     const groups = await res.json();
 
     const select = document.getElementById('group');
@@ -92,9 +101,8 @@ async function addGroup() {
   if (!name) return;
 
   try {
-    await fetch(`${backendURL}/groups`, {
+    await authFetch(`${backendURL}/groups`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name })
     });
 
@@ -106,13 +114,17 @@ async function addGroup() {
   }
 }
 
+if (addGroupBtn) {
+  addGroupBtn.addEventListener('click', addGroup);
+}
+
 //Deleting a group by sending a request
 async function deleteGroup(name) {
   const confirmed = await showConfirm(`Delete group "${name}" and all its flashcards?`);
   if (!confirmed) return;
 
   try {
-    await fetch(`${backendURL}/groups/${name}`, { method: 'DELETE' });
+    await authFetch(`${backendURL}/groups/${name}`, { method: 'DELETE' });
     loadGroups();
     loadFlashcards();
   } catch (err) {
@@ -126,8 +138,10 @@ async function loadFlashcards() {
 
   try {
     //Fetching groups and flashcards from the backend
-    const groups = await fetch(`${backendURL}/groups`).then(r => r.json());
-    const cards = await fetch(`${backendURL}/flashcards`).then(r => r.json());
+      const groupsRes = await authFetch(`${backendURL}/groups`);
+      const cardsRes = await authFetch(`${backendURL}/flashcards`);
+      const groups = groupsRes.ok ? await groupsRes.json() : [];
+      const cards = cardsRes.ok ? await cardsRes.json() : [];
 
     //Reseting the UI and adding a header 
     flashcardsDiv.innerHTML = '<h2>Groups</h2>';
@@ -449,9 +463,8 @@ form.addEventListener('submit', async (e) => {
   if (!question || !answer || !group) return;
 
   try {
-    await fetch(`${backendURL}/flashcards`, {
+    await authFetch(`${backendURL}/flashcards`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question, answer, group })
     });
 
@@ -468,7 +481,7 @@ async function deleteCard(id) {
   if (!confirmed) return;
 
   try {
-    await fetch(`${backendURL}/flashcards/${id}`, { method: 'DELETE' });
+    await authFetch(`${backendURL}/flashcards/${id}`, { method: 'DELETE' });
     loadFlashcards();
   } catch (err) {
     showToast('Could not delete flashcard. Is the server running?');
@@ -478,9 +491,8 @@ async function deleteCard(id) {
 //Edits a flashcard by its id by sending the updated data to the backend
 async function editCard(card) {
   try {
-    await fetch(`${backendURL}/flashcards/${card._id}`, {
+    await authFetch(`${backendURL}/flashcards/${card._id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: card.question, answer: card.answer, group: card.group })
     });
 
@@ -490,5 +502,8 @@ async function editCard(card) {
   }
 }
 
-loadGroups();
-loadFlashcards();
+// Initialize the app: if the user is already authenticated, load groups and flashcards.
+if (window.isAuthenticated && window.isAuthenticated()) {
+  loadGroups();
+  loadFlashcards();
+}
