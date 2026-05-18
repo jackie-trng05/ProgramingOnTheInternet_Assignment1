@@ -591,3 +591,66 @@ if (searchInput) {
     renderGroups(cachedGroups, cachedCards);
   });
 }
+
+//Admin view: fetch and display all users learning history
+async function loadAdminHistory() {
+  flashcardsDiv.innerHTML = '';
+  hideAddFlashCardSection();
+
+  try {
+    const res = await authFetch(`${backendURL}/history/all`);
+    const history = await res.json();
+
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('full-row');
+
+    const title = document.createElement('h2');
+    title.textContent = 'Admin — Learning History';
+    title.style.textAlign = 'center';
+    wrapper.appendChild(title);
+
+    if (history.length === 0) {
+      const empty = document.createElement('p');
+      empty.textContent = 'No study history yet.';
+      empty.style.textAlign = 'center';
+      wrapper.appendChild(empty);
+      flashcardsDiv.appendChild(wrapper);
+      return;
+    }
+
+    const table = document.createElement('table');
+    table.style.cssText = 'width:90%;margin:20px auto;border-collapse:collapse;';
+
+    table.innerHTML = `
+      <thead>
+        <tr style="background:var(--accent);color:#fff;">
+          <th style="padding:10px;text-align:left;">User</th>
+          <th style="padding:10px;text-align:left;">Question</th>
+          <th style="padding:10px;text-align:left;">Answer</th>
+          <th style="padding:10px;text-align:left;">Result</th>
+          <th style="padding:10px;text-align:left;">Time</th>
+        </tr>
+      </thead>
+    `;
+
+    const tbody = document.createElement('tbody');
+    history.forEach((entry, i) => {
+      const row = document.createElement('tr');
+      row.style.background = i % 2 === 0 ? '#fff' : '#f9f9f9';
+      row.innerHTML = `
+        <td style="padding:8px 10px;">${entry.user_id}</td>
+        <td style="padding:8px 10px;">${entry.question}</td>
+        <td style="padding:8px 10px;">${entry.answer}</td>
+        <td style="padding:8px 10px;">${entry.correct ? '✅ Correct' : '❌ Incorrect'}</td>
+        <td style="padding:8px 10px;">${new Date(entry.timestamp).toLocaleString()}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    wrapper.appendChild(table);
+    flashcardsDiv.appendChild(wrapper);
+  } catch (err) {
+    showToast('Error loading admin history.');
+  }
+}
