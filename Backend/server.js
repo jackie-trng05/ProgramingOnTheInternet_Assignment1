@@ -68,6 +68,7 @@ app.post('/login', async (req, res) => {
 
 app.use('/groups', requireAuth);
 app.use('/flashcards', requireAuth);
+app.use('/history', requireAuth);
 
 //Setting up MongoDB connection
 const client = new MongoClient(process.env.MONGO_URI);
@@ -176,6 +177,23 @@ app.delete('/flashcards/:id', async (req, res) => {
     res.send({ success: true });
   } catch (err) {
     res.status(500).send('Error deleting flashcard');
+  }
+});
+
+//Recording a study attempt (correct or incorrect)
+app.post('/history', async (req, res) => {
+  try {
+    const { question, answer, correct } = req.body;
+    await db.collection('history').insertOne({
+      user_id: req.user,
+      question,
+      answer,
+      correct,
+      timestamp: new Date()
+    });
+    res.send({ success: true });
+  } catch (err) {
+    res.status(500).send('Error recording history');
   }
 });
 
