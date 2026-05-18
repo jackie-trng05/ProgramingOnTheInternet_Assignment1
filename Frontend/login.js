@@ -49,11 +49,13 @@ function clearLoginFields() {
 // Show the flashcard app UI and hide the login form
 function showApp() {
   authSection.classList.add('hidden');
-  document.getElementById('inputArea').classList.remove('hidden');
   document.getElementById('flashcards').classList.remove('hidden');
-  document.getElementById('searchBar').classList.remove('hidden');
   logoutBtn.classList.remove('hidden');
   welcomeMessage.classList.remove('hidden');
+
+  const isAdmin = getAuthUser() === 'admin@example.com';
+  document.getElementById('inputArea').classList.toggle('hidden', isAdmin);
+  document.getElementById('searchBar').classList.toggle('hidden', isAdmin);
 }
 
 // Update the auth UI based on whether a token is available
@@ -126,7 +128,9 @@ loginForm.addEventListener('submit', async (e) => {
     sessionStorage.setItem(AUTH_TOKEN_KEY, data.token);
     sessionStorage.setItem(AUTH_USER_KEY, data.user);
     updateAuthUI();
-    if (typeof loadGroups === 'function') {
+    if (data.user === 'admin@example.com') {
+      if (typeof loadAdminHistory === 'function') loadAdminHistory();
+    } else if (typeof loadFlashcards === 'function') {
       loadGroups();
       loadFlashcards();
     }
@@ -147,6 +151,10 @@ window.logout = logout;
 updateAuthUI();
 
 if (isAuthenticated() && typeof loadGroups === 'function') {
-  loadGroups();
-  loadFlashcards();
+  if (getAuthUser() === 'admin@example.com') {
+    if (typeof loadAdminHistory === 'function') loadAdminHistory();
+  } else {
+    loadGroups();
+    loadFlashcards();
+  }
 }
