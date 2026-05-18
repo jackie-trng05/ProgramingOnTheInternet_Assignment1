@@ -328,6 +328,12 @@ function startStudyMode(groupName, groupCards) {
     tickBtn.onclick = () => {
       if (isAnimating) return;
       isAnimating = true;
+      //Record correct attempt in history
+      authFetch(`${backendURL}/history`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: card.question, answer: card.answer, correct: true })
+      });
       //Animation to remove the card from the pile
       cardEl.classList.remove('hover-correct');
       cardEl.classList.add('correct-anim');
@@ -352,6 +358,12 @@ function startStudyMode(groupName, groupCards) {
     crossBtn.onclick = () => {
       if (isAnimating) return;
       isAnimating = true;
+      //Record incorrect attempt in history
+      authFetch(`${backendURL}/history`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: card.question, answer: card.answer, correct: false })
+      });
       cardEl.classList.remove('hover-wrong');
       cardEl.classList.add('wrong-anim');
       setTimeout(() => {
