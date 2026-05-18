@@ -180,6 +180,19 @@ app.delete('/flashcards/:id', async (req, res) => {
   }
 });
 
+//Admin only: get all users learning history
+app.get('/history/all', async (req, res) => {
+  if (req.user !== 'admin@example.com') {
+    return res.status(403).json({ error: 'Forbidden: admin only' });
+  }
+  try {
+    const history = await db.collection('history').find().sort({ timestamp: -1 }).toArray();
+    res.send(history);
+  } catch (err) {
+    res.status(500).send('Error fetching history');
+  }
+});
+
 //Recording a study attempt (correct or incorrect)
 app.post('/history', async (req, res) => {
   try {
