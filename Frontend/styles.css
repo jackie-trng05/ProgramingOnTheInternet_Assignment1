@@ -71,26 +71,80 @@ h2 {
   display: none !important;
 }
 
-form {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0;
-  margin-bottom: 0;
-}
 
 #inputArea {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: fit-content;
-  margin: 0 auto 20px;
+  display: inline-grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 5px;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-#addFlashcardSection {
+#addFlashcardSection,
+#flashcardForm {
+  display: contents;
+}
+
+.col-spacer {
+  display: block;
+}
+
+#searchBar {
   display: flex;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 5px;
+  gap: 10px;
+  margin: 30px auto 15px;
+}
+
+#searchBar input {
+  width: 500px;
+  margin: 0;
+}
+
+.search-label {
+  font-weight: bold;
+  color: var(--text-dark);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.full-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.edit-search-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 4px;
+}
+
+.edit-cards-grid {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.edit-back-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+#flashcards > h2 {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
 input {
@@ -152,6 +206,9 @@ select {
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .flashcard:hover {

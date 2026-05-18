@@ -22,6 +22,8 @@ async function authFetch(url, options = {}) {
 
 let studyPile = []; //Stores the cards being studied
 let currentIndex = 0; //Tracks the current card position
+let cachedGroups = []; //Cached groups for live search filtering
+let cachedCards = [];  //Cached cards for live search filtering
 
 //Displays a temporary error message to the user 
 function showToast(message = 'Something went wrong. Please try again.') {
@@ -62,14 +64,16 @@ function showConfirm(message) {
 
 //Function used to make sure we can't add a flashcard during edit or study mode
 function hideAddFlashCardSection() {
-  addFlashcardSection.style.display = 'none';
-  form.style.display = 'none';
+  document.getElementById('inputArea').classList.add('hidden');
+  document.getElementById('searchBar').classList.add('hidden');
 }
 
 //Function to show the add flashcard section again after study or edit mode
 function showAddFlashCardSection() {
-  addFlashcardSection.style.display = '';
-  form.style.display = '';
+  document.getElementById('inputArea').classList.remove('hidden');
+  if (window.isAuthenticated && window.isAuthenticated()) {
+    document.getElementById('searchBar').classList.remove('hidden');
+  }
 }
 
 //Loading groups from the backend and fills the drop down menu
@@ -140,61 +144,10 @@ async function loadFlashcards() {
     //Fetching groups and flashcards from the backend
       const groupsRes = await authFetch(`${backendURL}/groups`);
       const cardsRes = await authFetch(`${backendURL}/flashcards`);
-      const groups = groupsRes.ok ? await groupsRes.json() : [];
-      const cards = cardsRes.ok ? await cardsRes.json() : [];
+      cachedGroups = groupsRes.ok ? await groupsRes.json() : [];
+      cachedCards = cardsRes.ok ? await cardsRes.json() : [];
 
-    //Reseting the UI and adding a header 
-    flashcardsDiv.innerHTML = '<h2>Groups</h2>';
-
-    //Looping through the groups and creating a section for each group with its flashcards
-    groups.forEach(groupObj => {
-      const groupName = groupObj.name;
-      const groupCards = cards.filter(c => c.group === groupName);
-
-      const div = document.createElement('div');
-      div.classList.add('flashcard');
-
-      //Displays group name and number of cards 
-      const title = document.createElement('h3');
-      const cardCount = groupCards.length;
-      title.textContent = `${groupName} — ${cardCount} ${cardCount === 1 ? 'card' : 'cards'}`;
-      div.appendChild(title);
-
-      //Container for all the buttons for the group (study, edit, delete)
-      const btnContainer = document.createElement('div');
-      btnContainer.style.display = 'flex';
-      btnContainer.style.gap = '5px';
-
-      //Study button
-      const studyBtn = document.createElement('button');
-      studyBtn.textContent = 'Study';
-      studyBtn.onclick = (e) => {
-        e.stopPropagation();
-        startStudyMode(groupName, groupCards);
-      };
-      btnContainer.appendChild(studyBtn);
-
-      //Edit button
-      const editBtn = document.createElement('button');
-      editBtn.textContent = 'Edit';
-      editBtn.onclick = (e) => {
-        e.stopPropagation();
-        showEditMode(groupName, groupCards);
-      };
-      btnContainer.appendChild(editBtn);
-
-      //Delete button
-      const delBtn = document.createElement('button');
-      delBtn.textContent = 'Delete';
-      delBtn.onclick = (e) => {
-        e.stopPropagation();
-        deleteGroup(groupName);
-      };
-      btnContainer.appendChild(delBtn);
-
-      div.appendChild(btnContainer);
-      flashcardsDiv.appendChild(div);
-    });
+    renderGroups(cachedGroups, cachedCards);
   } catch (err) { //Error message for if server is unreachable
     flashcardsDiv.innerHTML = `
       <div class="done-message">
@@ -205,6 +158,75 @@ async function loadFlashcards() {
     `;
     showToast('Could not load flashcards. Is the server running?');
   }
+}
+
+//Renders the groups and cards, filtering by the current search query
+function renderGroups(groups, cards) {
+  const query = document.getElementById('searchInput')?.value.trim().toLowerCase() || '';
+
+  //Filter: show a group only if its name matches the query
+  const filteredGroups = groups.filter(groupObj => {
+    const groupName = groupObj.name.toLowerCase();
+    return groupName.includes(query);
+  });
+
+  //Reseting the UI and adding a header
+  flashcardsDiv.innerHTML = '<h2>Groups</h2>';
+
+  if (query && filteredGroups.length === 0) {
+    flashcardsDiv.innerHTML += '<p>No flashcards match your search.</p>';
+    return;
+  }
+
+  //Looping through the filtered groups and creating a section for each group with its flashcards
+  filteredGroups.forEach(groupObj => {
+    const groupName = groupObj.name;
+    const groupCards = cards.filter(c => c.group === groupName);
+
+    const div = document.createElement('div');
+    div.classList.add('flashcard');
+
+    //Displays group name and number of cards
+    const title = document.createElement('h3');
+    const cardCount = groupCards.length;
+    title.textContent = `${groupName} — ${cardCount} ${cardCount === 1 ? 'card' : 'cards'}`;
+    div.appendChild(title);
+
+    //Container for all the buttons for the group (study, edit, delete)
+    const btnContainer = document.createElement('div');
+    btnContainer.style.display = 'flex';
+    btnContainer.style.gap = '5px';
+
+    //Study button
+    const studyBtn = document.createElement('button');
+    studyBtn.textContent = 'Study';
+    studyBtn.onclick = (e) => {
+      e.stopPropagation();
+      startStudyMode(groupName, groupCards);
+    };
+    btnContainer.appendChild(studyBtn);
+
+    //Edit button
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = (e) => {
+      e.stopPropagation();
+      showEditMode(groupName, groupCards);
+    };
+    btnContainer.appendChild(editBtn);
+
+    //Delete button
+    const delBtn = document.createElement('button');
+    delBtn.textContent = 'Delete';
+    delBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteGroup(groupName);
+    };
+    btnContainer.appendChild(delBtn);
+
+    div.appendChild(btnContainer);
+    flashcardsDiv.appendChild(div);
+  });
 }
 
 //Function to start the study mode for a specific group
@@ -393,63 +415,105 @@ function shuffleArray(array) {
 //Function to start the edit mode for a specific group
 function showEditMode(groupName, groupCards) {
   hideAddFlashCardSection();
-  flashcardsDiv.innerHTML = `<h2>${groupName} - Edit Mode</h2>`;
+  flashcardsDiv.innerHTML = '';
 
-  //Loop through the flashcards and create its UI with edit and delete buttons for each card
-  groupCards.forEach(card => {
-    const div = document.createElement('div');
-    div.classList.add('flashcard');
+  const header = document.createElement('div');
+  header.classList.add('full-row');
 
-    //Display the card content
-    const contentDiv = document.createElement('div');
-    contentDiv.classList.add('card-content');
-    contentDiv.innerHTML = `
-      <strong>Q:</strong> ${card.question}<br>
-      <strong>A:</strong> ${card.answer}<br>
-    `;
-    div.appendChild(contentDiv);
+  const title = document.createElement('h2');
+  title.textContent = `${groupName} - Edit Mode`;
+  header.appendChild(title);
 
-    const editBtnRow = document.createElement('div');
-    editBtnRow.classList.add('edit-btn-row');
+  const searchRow = document.createElement('div');
+  searchRow.classList.add('edit-search-row');
 
-    //Edit button which turns into a save button 
-    const editBtn = document.createElement('button');
-    editBtn.textContent = 'Edit';
-    editBtn.onclick = () => {
-      //Replace the text with input fields for the user to edit the question and answer
+  const searchLabel = document.createElement('label');
+  searchLabel.textContent = 'Search:';
+  searchLabel.classList.add('search-label');
+  searchRow.appendChild(searchLabel);
+
+  const searchField = document.createElement('input');
+  searchField.type = 'text';
+  searchField.placeholder = 'Search flashcards...';
+  searchField.style.width = '500px';
+  searchRow.appendChild(searchField);
+
+  header.appendChild(searchRow);
+  flashcardsDiv.appendChild(header);
+
+  const cardListDiv = document.createElement('div');
+  cardListDiv.classList.add('edit-cards-grid');
+  flashcardsDiv.appendChild(cardListDiv);
+
+  //Renders cards filtered by the search term
+  function renderCards(query) {
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? groupCards.filter(c =>
+          c.question.toLowerCase().includes(q) ||
+          c.answer.toLowerCase().includes(q)
+        )
+      : groupCards;
+
+    cardListDiv.innerHTML = '';
+
+    if (filtered.length === 0) {
+      cardListDiv.innerHTML = '<p style="width:100%;text-align:center;">No flashcards match your search.</p>';
+      return;
+    }
+
+    filtered.forEach(card => {
+      const div = document.createElement('div');
+      div.classList.add('flashcard');
+
+      const contentDiv = document.createElement('div');
+      contentDiv.classList.add('card-content');
       contentDiv.innerHTML = `
-        <input class="edit-input" id="editQ-${card._id}" value="${card.question}"><br>
-        <input class="edit-input" id="editA-${card._id}" value="${card.answer}">
+        <strong>Q:</strong> ${card.question}<br>
+        <strong>A:</strong> ${card.answer}<br>
       `;
+      div.appendChild(contentDiv);
 
-      editBtn.textContent = 'Save';
+      const editBtnRow = document.createElement('div');
+      editBtnRow.classList.add('edit-btn-row');
 
-      //When the user clicks the save button, we send a request to the backend to update the card
-      editBtn.onclick = async () => {
-        const newQuestion = document.getElementById(`editQ-${card._id}`).value.trim();
-        const newAnswer = document.getElementById(`editA-${card._id}`).value.trim();
-        if (!newQuestion || !newAnswer) return;
-        await editCard({ ...card, question: newQuestion, answer: newAnswer });
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.onclick = () => {
+        contentDiv.innerHTML = `
+          <input class="edit-input" id="editQ-${card._id}" value="${card.question}"><br>
+          <input class="edit-input" id="editA-${card._id}" value="${card.answer}">
+        `;
+        editBtn.textContent = 'Save';
+        editBtn.onclick = async () => {
+          const newQuestion = document.getElementById(`editQ-${card._id}`).value.trim();
+          const newAnswer = document.getElementById(`editA-${card._id}`).value.trim();
+          if (!newQuestion || !newAnswer) return;
+          await editCard({ ...card, question: newQuestion, answer: newAnswer });
+        };
       };
-    };
 
-    //Delete button which sends a request to the backend to delete the card
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Delete';
-    deleteBtn.onclick = () => deleteCard(card._id);
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.onclick = () => deleteCard(card._id);
 
-    editBtnRow.appendChild(editBtn);
-    editBtnRow.appendChild(deleteBtn);
-    div.appendChild(editBtnRow);
+      editBtnRow.appendChild(editBtn);
+      editBtnRow.appendChild(deleteBtn);
+      div.appendChild(editBtnRow);
+      cardListDiv.appendChild(div);
+    });
+  }
 
-    flashcardsDiv.appendChild(div);
-  });
+  renderCards('');
+  searchField.addEventListener('input', () => renderCards(searchField.value));
 
-  //Back to groups button
+  const backRow = document.createElement('div');
+  backRow.classList.add('edit-back-row');
   const backBtn = document.createElement('button');
   backBtn.textContent = 'Back to Groups';
   backBtn.onclick = loadFlashcards;
-  flashcardsDiv.appendChild(backBtn);
+  backRow.appendChild(backBtn);
+  flashcardsDiv.appendChild(backRow);
 }
 
 //Handles adding a new flashcard by sending the data to the backend
@@ -506,4 +570,12 @@ async function editCard(card) {
 if (window.isAuthenticated && window.isAuthenticated()) {
   loadGroups();
   loadFlashcards();
+}
+
+//Live search: re-render groups using cached data on every keystroke
+const searchInput = document.getElementById('searchInput');
+if (searchInput) {
+  searchInput.addEventListener('input', () => {
+    renderGroups(cachedGroups, cachedCards);
+  });
 }

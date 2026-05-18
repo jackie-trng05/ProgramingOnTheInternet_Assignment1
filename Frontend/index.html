@@ -30,8 +30,10 @@
 
   <div id="inputArea">
     <div id="addFlashcardSection">
+      <div class="col-spacer"></div>
       <input type="text" id="newGroup" placeholder="New group name">
       <button id="addGroupBtn" type="button">Add Group</button>
+      <div class="col-spacer"></div>
     </div>
 
     <form id="flashcardForm">
@@ -42,6 +44,11 @@
       </select>
       <button type="submit">Add Flashcard</button>
     </form>
+  </div>
+
+  <div id="searchBar" class="hidden">
+    <label class="search-label">Search:</label>
+    <input type="text" id="searchInput" placeholder="Search groups...">
   </div>
 
   <div id="flashcards"></div>

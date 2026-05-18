@@ -32,8 +32,8 @@ function isAuthenticated() {
 // Show the login page and hide the app UI
 function showLogin() {
   authSection.classList.remove('hidden');
-  document.getElementById('addFlashcardSection').classList.add('hidden');
-  document.getElementById('flashcardForm').classList.add('hidden');
+  document.getElementById('inputArea').classList.add('hidden');
+  document.getElementById('searchBar').classList.add('hidden');
   document.getElementById('flashcards').classList.add('hidden');
   logoutBtn.classList.add('hidden');
   welcomeMessage.classList.add('hidden');
@@ -49,9 +49,9 @@ function clearLoginFields() {
 // Show the flashcard app UI and hide the login form
 function showApp() {
   authSection.classList.add('hidden');
-  document.getElementById('addFlashcardSection').classList.remove('hidden');
-  document.getElementById('flashcardForm').classList.remove('hidden');
+  document.getElementById('inputArea').classList.remove('hidden');
   document.getElementById('flashcards').classList.remove('hidden');
+  document.getElementById('searchBar').classList.remove('hidden');
   logoutBtn.classList.remove('hidden');
   welcomeMessage.classList.remove('hidden');
 }
