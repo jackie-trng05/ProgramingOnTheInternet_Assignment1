@@ -3,6 +3,8 @@
 <head>
   <title>Flashcard App</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="searchbar.css">
+  <link rel="stylesheet" href="table.css">
 </head>
 <body>
   <div id="headerRow">
@@ -67,11 +69,7 @@
     </form>
   </div>
 
-  <div id="searchBar" class="hidden">
-    <label class="search-label">Search:</label>
-    <input type="text" id="searchInput" placeholder="Search groups...">
-  </div>
-
+  <div id="groups-header-area"></div>
   <div id="flashcards"></div>
 
   <div id="toast" class="toast hidden">Something went wrong. Please try again.</div>
@@ -109,6 +107,8 @@
     </div>
   </div>
 
+  <script src="searchbar.js" defer></script>
+  <script src="table.js" defer></script>
   <script src="app.js" defer></script>
   <script src="login.js" defer></script>
 </body>

@@ -1,0 +1,28 @@
+.groups-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.search-label {
+  font-weight: bold;
+  color: var(--text-dark);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.edit-search-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 4px;
+}
+
+.edit-search-row input {
+  width: 500px;
+  margin: 0;
+}

@@ -33,7 +33,6 @@ function isAuthenticated() {
 function showLogin() {
   authSection.classList.remove('hidden');
   document.getElementById('inputArea').classList.add('hidden');
-  document.getElementById('searchBar').classList.add('hidden');
   document.getElementById('flashcards').classList.add('hidden');
   logoutBtn.classList.add('hidden');
   document.getElementById('settingsBtn').classList.add('hidden');
@@ -57,7 +56,6 @@ function showApp() {
 
   const isAdmin = getAuthUser() === 'admin@example.com';
   document.getElementById('inputArea').classList.toggle('hidden', isAdmin);
-  document.getElementById('searchBar').classList.toggle('hidden', isAdmin);
 }
 
 // Update the auth UI based on whether a token is available
