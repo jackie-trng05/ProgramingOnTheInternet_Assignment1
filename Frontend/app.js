@@ -561,6 +561,7 @@ function showEditMode(groupName, groupCards) {
             editBtn.textContent = 'Edit';
             editBtn.classList.remove('btn-success');
             editBtn.classList.add('btn-primary');
+          });
         }
       };
 
