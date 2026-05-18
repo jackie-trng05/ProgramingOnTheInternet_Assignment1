@@ -36,6 +36,7 @@ function showLogin() {
   document.getElementById('searchBar').classList.add('hidden');
   document.getElementById('flashcards').classList.add('hidden');
   logoutBtn.classList.add('hidden');
+  document.getElementById('settingsBtn').classList.add('hidden');
   welcomeMessage.classList.add('hidden');
 }
 
@@ -51,6 +52,7 @@ function showApp() {
   authSection.classList.add('hidden');
   document.getElementById('flashcards').classList.remove('hidden');
   logoutBtn.classList.remove('hidden');
+  document.getElementById('settingsBtn').classList.remove('hidden');
   welcomeMessage.classList.remove('hidden');
 
   const isAdmin = getAuthUser() === 'admin@example.com';
@@ -137,6 +139,62 @@ loginForm.addEventListener('submit', async (e) => {
   } catch (error) {
     loginError.textContent = 'Server connection error.';
     loginError.classList.remove('hidden');
+  }
+});
+
+// Toggle between login and register forms
+const authToggleLink = document.getElementById('authToggleLink');
+const authToggleText = document.getElementById('authToggleText');
+const registerForm = document.getElementById('registerForm');
+const authTitle = document.getElementById('authTitle');
+let isRegisterMode = false;
+
+authToggleLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  isRegisterMode = !isRegisterMode;
+  loginForm.classList.toggle('hidden', isRegisterMode);
+  registerForm.classList.toggle('hidden', !isRegisterMode);
+  authTitle.textContent = isRegisterMode ? 'Create an account' : 'Login to continue';
+  authToggleText.textContent = isRegisterMode ? 'Already have an account?' : "Don't have an account?";
+  authToggleLink.textContent = isRegisterMode ? ' Login' : ' Register';
+});
+
+// Handle register form submission
+registerForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const registerError = document.getElementById('registerError');
+  registerError.classList.add('hidden');
+
+  const username = document.getElementById('regUsername').value.trim();
+  const password = document.getElementById('regPassword').value.trim();
+
+  if (!username || !password) {
+    registerError.textContent = 'Username and password are required.';
+    registerError.classList.remove('hidden');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${BACKEND_ORIGIN}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      registerError.textContent = data.error || 'Registration failed.';
+      registerError.classList.remove('hidden');
+      return;
+    }
+    // Switch back to login and show success
+    authToggleLink.click();
+    loginError.textContent = '';
+    loginError.classList.add('hidden');
+    document.getElementById('loginUsername').value = username;
+    showToast('Account created! Please sign in.');
+  } catch (err) {
+    registerError.textContent = 'Server connection error.';
+    registerError.classList.remove('hidden');
   }
 });
 

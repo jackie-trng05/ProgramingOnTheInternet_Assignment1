@@ -37,6 +37,25 @@ function requireAuth(req, res, next) {
   }
 }
 
+//Registering a new user
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required.' });
+  }
+  try {
+    const existing = await db.collection('users').findOne({ username });
+    if (existing) {
+      return res.status(409).json({ error: 'Username already exists.' });
+    }
+    const hashedPassword = await bcrypt.hash(password, 12);
+    await db.collection('users').insertOne({ username, password: hashedPassword });
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: 'Server error during registration.' });
+  }
+});
+
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -69,6 +88,7 @@ app.post('/login', async (req, res) => {
 app.use('/groups', requireAuth);
 app.use('/flashcards', requireAuth);
 app.use('/history', requireAuth);
+app.use('/account', requireAuth);
 
 //Setting up MongoDB connection
 const client = new MongoClient(process.env.MONGO_URI);
@@ -207,6 +227,39 @@ app.post('/history', async (req, res) => {
     res.send({ success: true });
   } catch (err) {
     res.status(500).send('Error recording history');
+  }
+});
+
+//Change password for the logged-in user
+app.put('/account/password', async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Both passwords are required.' });
+  }
+  try {
+    const user = await db.collection('users').findOne({ username: req.user });
+    const matches = await bcrypt.compare(currentPassword, user.password);
+    if (!matches) {
+      return res.status(401).json({ error: 'Current password is incorrect.' });
+    }
+    const hashed = await bcrypt.hash(newPassword, 12);
+    await db.collection('users').updateOne({ username: req.user }, { $set: { password: hashed } });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Error changing password.' });
+  }
+});
+
+//Delete the logged-in user's account and all their data
+app.delete('/account', async (req, res) => {
+  try {
+    await db.collection('users').deleteOne({ username: req.user });
+    await db.collection('groups').deleteMany({ user_id: req.user });
+    await db.collection('flashcards').deleteMany({ user_id: req.user });
+    await db.collection('history').deleteMany({ user_id: req.user });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Error deleting account.' });
   }
 });
 

@@ -7,13 +7,18 @@
 <body>
   <div id="headerRow">
     <h1>Flashcards</h1>
-    <button id="logoutBtn" class="hidden">Logout</button>
+    <div id="headerBtns">
+      <button id="settingsBtn" class="hidden icon-btn" title="Settings">
+        <img src="images/settings.png" alt="Settings" style="width:24px;height:24px;">
+      </button>
+      <button id="logoutBtn" class="hidden">Logout</button>
+    </div>
   </div>
 
   <div id="welcomeMessage" class="hidden"></div>
 
   <div id="authSection" class="hidden">
-    <h2>Login to continue</h2>
+    <h2 id="authTitle">Login to continue</h2>
     <form id="loginForm">
       <div class="input-group">
         <label>Username</label>
@@ -26,6 +31,22 @@
       <button type="submit" class="login-button">Sign In</button>
       <div id="loginError" class="login-error hidden"></div>
     </form>
+    <form id="registerForm" class="hidden">
+      <div class="input-group">
+        <label>Username</label>
+        <input id="regUsername" type="text" placeholder="username@example.com" required>
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input id="regPassword" type="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="login-button">Register</button>
+      <div id="registerError" class="login-error hidden"></div>
+    </form>
+    <p style="margin-top:12px;font-size:0.9rem;">
+      <span id="authToggleText">Don't have an account?</span>
+      <a href="#" id="authToggleLink" style="color:var(--accent);font-weight:600;"> Register</a>
+    </p>
   </div>
 
   <div id="inputArea">
@@ -54,6 +75,29 @@
   <div id="flashcards"></div>
 
   <div id="toast" class="toast hidden">Something went wrong. Please try again.</div>
+
+  <div id="settingsModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h3 style="margin-bottom:14px;">Settings</h3>
+      <form id="changePasswordForm">
+        <div class="input-group">
+          <label>Current Password</label>
+          <input id="currentPassword" type="password" placeholder="••••••••" required>
+        </div>
+        <div class="input-group">
+          <label>New Password</label>
+          <input id="newPassword" type="password" placeholder="••••••••" required>
+        </div>
+        <div class="modal-btn-row">
+          <button type="submit">Change Password</button>
+          <button type="button" id="settingsClose">Cancel</button>
+        </div>
+        <div id="changePasswordError" class="login-error hidden"></div>
+      </form>
+      <hr style="margin:16px 0;border-color:#ddd;">
+      <button id="deleteAccountBtn" style="background:var(--btn-danger);color:#fff;width:100%;">Delete My Account</button>
+    </div>
+  </div>
 
   <div id="confirmModal" class="modal-overlay hidden">
     <div class="modal-box">

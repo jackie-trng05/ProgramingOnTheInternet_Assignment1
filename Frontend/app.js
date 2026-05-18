@@ -8,6 +8,53 @@ const confirmModal = document.getElementById('confirmModal');
 const confirmMessage = document.getElementById('confirmMessage');
 const confirmOkBtn = document.getElementById('confirmOk');
 const confirmCancelBtn = document.getElementById('confirmCancel');
+const settingsModal = document.getElementById('settingsModal');
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsClose = document.getElementById('settingsClose');
+const changePasswordForm = document.getElementById('changePasswordForm');
+const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+
+// Open/close settings modal
+settingsBtn.addEventListener('click', () => {
+  settingsModal.classList.remove('hidden');
+  document.getElementById('changePasswordError').classList.add('hidden');
+  changePasswordForm.reset();
+});
+settingsClose.addEventListener('click', () => settingsModal.classList.add('hidden'));
+
+// Change password
+changePasswordForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorDiv = document.getElementById('changePasswordError');
+  errorDiv.classList.add('hidden');
+  const currentPassword = document.getElementById('currentPassword').value;
+  const newPassword = document.getElementById('newPassword').value;
+  const res = await authFetch(`${backendURL}/account/password`, {
+    method: 'PUT',
+    body: JSON.stringify({ currentPassword, newPassword })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    errorDiv.textContent = data.error;
+    errorDiv.classList.remove('hidden');
+    return;
+  }
+  settingsModal.classList.add('hidden');
+  showToast('Password changed successfully.');
+});
+
+// Delete account
+deleteAccountBtn.addEventListener('click', async () => {
+  const confirmed = await showConfirm('Are you sure you want to delete your account? This cannot be undone.');
+  if (!confirmed) return;
+  const res = await authFetch(`${backendURL}/account`, { method: 'DELETE' });
+  if (res.ok) {
+    settingsModal.classList.add('hidden');
+    logout('Your account has been deleted.');
+  } else {
+    showToast('Error deleting account.');
+  }
+});
 
 // Backend API base URL (same origin or fallback to localhost)
 const backendURL = window.location.origin && window.location.origin !== 'null'
