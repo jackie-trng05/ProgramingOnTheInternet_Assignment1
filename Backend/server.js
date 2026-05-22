@@ -89,6 +89,7 @@ app.use('/groups', requireAuth);
 app.use('/flashcards', requireAuth);
 app.use('/history', requireAuth);
 app.use('/account', requireAuth);
+app.use('/admin', requireAuth);
 
 //Setting up MongoDB connection
 const client = new MongoClient(process.env.MONGO_URI);
@@ -210,6 +211,23 @@ app.get('/history/all', async (req, res) => {
     res.send(history);
   } catch (err) {
     res.status(500).send('Error fetching history');
+  }
+});
+
+//Admin only: get all registered users
+app.get('/admin/users', async (req, res) => {
+  if (req.user !== 'admin@example.com') {
+    return res.status(403).json({ error: 'Forbidden: admin only' });
+  }
+  try {
+    const users = await db.collection('users').find({}, { projection: { password: 0 } }).toArray();
+    const result = users.map(u => ({
+      username: u.username,
+      role: u.username === 'admin@example.com' ? 'Admin' : 'User'
+    }));
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching users.' });
   }
 });
 

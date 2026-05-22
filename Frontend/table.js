@@ -11,7 +11,7 @@ async function loadAdminHistory() {
     wrapper.classList.add('full-row');
 
     const title = document.createElement('h2');
-    title.textContent = 'Admin — Learning History';
+    title.textContent = 'Learning History';
     title.classList.add('text-center');
     wrapper.appendChild(title);
 
@@ -59,6 +59,48 @@ async function loadAdminHistory() {
     tableWrapper.appendChild(table);
     wrapper.appendChild(tableWrapper);
     flashcardsDiv.appendChild(wrapper);
+
+    // Users table
+    const usersRes = await authFetch(`${backendURL}/admin/users`);
+    const users = await usersRes.json();
+
+    const usersWrapper = document.createElement('div');
+    usersWrapper.classList.add('full-row');
+
+    const usersTitle = document.createElement('h2');
+    usersTitle.textContent = 'All Users';
+    usersTitle.classList.add('text-center');
+    usersWrapper.appendChild(usersTitle);
+
+    const usersTableWrapper = document.createElement('div');
+    usersTableWrapper.classList.add('data-table-wrapper');
+
+    const usersTable = document.createElement('table');
+    usersTable.classList.add('data-table');
+
+    usersTable.innerHTML = `
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+    `;
+
+    const usersTbody = document.createElement('tbody');
+    users.forEach((user) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${user.username}</td>
+        <td>${user.role}</td>
+      `;
+      usersTbody.appendChild(row);
+    });
+
+    usersTable.appendChild(usersTbody);
+    usersTableWrapper.appendChild(usersTable);
+    usersWrapper.appendChild(usersTableWrapper);
+    flashcardsDiv.appendChild(usersWrapper);
   } catch (err) {
     showToast('Error loading admin history.');
   }
