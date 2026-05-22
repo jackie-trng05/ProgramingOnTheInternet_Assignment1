@@ -195,7 +195,7 @@ registerForm.addEventListener('submit', async (e) => {
     loginError.textContent = '';
     loginError.classList.add('hidden');
     document.getElementById('loginUsername').value = username;
-    showToast('Account created! Please sign in.');
+    showToast('Account created! Please sign in.', true);
   } catch (err) {
     registerError.textContent = 'Server connection error.';
     registerError.classList.remove('hidden');

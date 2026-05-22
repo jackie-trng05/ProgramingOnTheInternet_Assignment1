@@ -371,7 +371,7 @@ function startStudyMode(groupName, groupCards) {
 
     //Correct button (removes the card from the pile)
     const tickBtn = document.createElement('button');
-    tickBtn.textContent = '✅';
+    tickBtn.textContent = '✔';
     //hover effect
     tickBtn.addEventListener('mouseenter', () => {
       cardEl.classList.add('hover-correct');
@@ -568,6 +568,8 @@ function showEditMode(groupName, groupCards) {
       const deleteBtn = document.createElement('button');
       deleteBtn.textContent = 'Delete';
       deleteBtn.classList.add('btn-danger');
+
+      // Re-render the cards after saving a change
       deleteBtn.onclick = () => deleteCard(card._id, () => {
         const idx = groupCards.findIndex(c => c._id === card._id);
         if (idx !== -1) groupCards.splice(idx, 1);

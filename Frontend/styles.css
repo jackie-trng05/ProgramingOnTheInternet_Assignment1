@@ -1,17 +1,17 @@
 :root {
-  --surface: #EDE9E0;
-  --accent: #7D6B67;
-  --accent-dark: #5a4d4a;
-  --card-bg: #FFFFFF;
-  --text-dark: #1E2019;
-  --btn-primary: #B09E99;
-  --btn-danger: #c0776e;
-  --btn-danger-dark: #a05a52;
-  --btn-success: #8aab8e;
-  --error: #ff8a8a;
-  --shadow: rgba(0, 0, 0, 0.4);
-  --overlay: rgba(0, 0, 0, 0.6);
-  --glow-correct: rgba(144, 238, 144, 0.6);
+  --surface: #FFFFFF;
+  --accent: #4A7FC1;
+  --accent-dark: #3A6399;
+  --card-bg: #EEF3FA;
+  --text-dark: #253650;
+  --btn-primary: #7BA7D1;
+  --btn-danger: #D4706D;
+  --btn-danger-dark: #B85252;
+  --btn-success: #4A9E6B;
+  --error: #E89898;
+  --shadow: rgba(74, 127, 193, 0.2);
+  --overlay: rgba(37, 54, 80, 0.7);
+  --glow-correct: rgba(74, 158, 107, 0.5);
 }
 
 body {
@@ -24,7 +24,7 @@ body {
 
 h1 {
   margin-bottom: 20px;
-  color: var(--text-dark);
+  color: #1A3A72;
   letter-spacing: 2px;
 }
 
@@ -38,7 +38,7 @@ h2 {
   align-items: center;
   gap: 20px;
   height: 30px;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
 
 #headerBtns {
@@ -78,7 +78,7 @@ h2 {
 }
 
 #authSection {
-  background-color: var(--surface);
+  background-color: var(--card-bg);
   padding: 22px 24px;
   border: 1px solid var(--accent);
   border-radius: 12px;
@@ -393,7 +393,7 @@ select {
 }
 
 .modal-box {
-  background: var(--surface);
+  background: var(--card-bg);
   border: 1px solid var(--accent);
   border-radius: 12px;
   padding: 30px;
@@ -436,4 +436,15 @@ select {
   background-color: var(--card-bg);
   color: var(--text-dark);
   font-size: 0.9rem;
+}
+
+#newGroup,
+#question,
+#answer,
+#group,
+#loginUsername,
+#loginPassword,
+#regUsername,
+#regPassword {
+  background-color: var(--surface);
 }

@@ -49,7 +49,7 @@ async function loadAdminHistory() {
         <td>${entry.user_id}</td>
         <td>${entry.question}</td>
         <td>${entry.answer}</td>
-        <td>${entry.correct ? '✅' : '❌'}</td>
+        <td>${entry.correct ? '<span style="color:var(--btn-success)">✔</span>' : '<span style="color:var(--btn-danger)">✘</span>'}</td>
         <td>${new Date(entry.timestamp).toLocaleString()}</td>
       `;
       tbody.appendChild(row);
