@@ -4,7 +4,7 @@
   height: 420px;
   overflow-y: auto;
   border-radius: 16px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 25px var(--shadow);
   scrollbar-width: thin;
 }
 
@@ -19,7 +19,7 @@
   position: sticky;
   top: 0;
   background: var(--accent);
-  color: #fff;
+  color: var(--card-bg);
   padding: 12px 14px;
   text-align: left;
   font-weight: 600;
@@ -27,15 +27,15 @@
 }
 
 .data-table tbody tr:nth-child(odd) {
-  background: #fff;
+  background: var(--card-bg);
 }
 
 .data-table tbody tr:nth-child(even) {
-  background: #f9f9f9;
+  background: var(--card-bg);
 }
 
 .data-table tbody tr:hover {
-  background: rgba(125, 107, 103, 0.08);
+  background: var(--shadow);
 }
 
 .data-table td,
@@ -43,9 +43,13 @@
   padding: 12px 14px;
   text-align: left;
   vertical-align: top;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--card-bg);
   white-space: normal;
   word-break: break-word;
+}
+
+.data-table td:has([data-action='delete-user']) {
+  text-align: right;
 }
 
 .data-table th:nth-child(1),

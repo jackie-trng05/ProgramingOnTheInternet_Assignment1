@@ -34,7 +34,11 @@ function showLogin() {
   authSection.classList.remove('hidden');
   document.getElementById('inputArea').classList.add('hidden');
   document.getElementById('groups-header-area').classList.add('hidden');
-  document.getElementById('flashcards').classList.add('hidden');
+  const flashcards = document.getElementById('flashcards');
+
+  // Clear flashcards HTML instantly so that the next user does not see the last user's screen briefly
+  flashcards.innerHTML = '';
+  flashcards.classList.add('hidden');
   logoutBtn.classList.add('hidden');
   document.getElementById('settingsBtn').classList.add('hidden');
   welcomeMessage.classList.add('hidden');

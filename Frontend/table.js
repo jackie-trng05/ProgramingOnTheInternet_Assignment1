@@ -83,6 +83,8 @@ async function loadAdminHistory() {
         <tr>
           <th>Username</th>
           <th>Role</th>
+          <th>Last Login</th>
+          <th></th>
         </tr>
       </thead>
     `;
@@ -90,10 +92,42 @@ async function loadAdminHistory() {
     const usersTbody = document.createElement('tbody');
     users.forEach((user) => {
       const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${user.username}</td>
-        <td>${user.role}</td>
-      `;
+
+      const usernameCell = document.createElement('td');
+      usernameCell.textContent = user.username;
+
+      const roleCell = document.createElement('td');
+      roleCell.textContent = user.role;
+
+      const lastLoginCell = document.createElement('td');
+      lastLoginCell.textContent = user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never';
+
+      const actionCell = document.createElement('td');
+      actionCell.classList.add('table-action-cell');
+      if (user.role !== 'Admin') {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.classList.add('btn-danger');
+        deleteBtn.dataset.action = 'delete-user';
+        deleteBtn.addEventListener('click', async () => {
+          const confirmed = await showConfirm(`Delete user "${user.username}" and all their data?`);
+          if (!confirmed) return;
+          const delRes = await authFetch(`${backendURL}/admin/users/${encodeURIComponent(user.username)}`, { method: 'DELETE' });
+          if (delRes.ok) {
+            row.remove();
+            showToast('User deleted.', true);
+          } else {
+            const data = await delRes.json();
+            showToast(data.error || 'Error deleting user.');
+          }
+        });
+        actionCell.appendChild(deleteBtn);
+      }
+
+      row.appendChild(usernameCell);
+      row.appendChild(roleCell);
+      row.appendChild(lastLoginCell);
+      row.appendChild(actionCell);
       usersTbody.appendChild(row);
     });
 

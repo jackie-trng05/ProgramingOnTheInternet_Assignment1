@@ -568,7 +568,11 @@ function showEditMode(groupName, groupCards) {
       const deleteBtn = document.createElement('button');
       deleteBtn.textContent = 'Delete';
       deleteBtn.classList.add('btn-danger');
-      deleteBtn.onclick = () => deleteCard(card._id);
+      deleteBtn.onclick = () => deleteCard(card._id, () => {
+        const idx = groupCards.findIndex(c => c._id === card._id);
+        if (idx !== -1) groupCards.splice(idx, 1);
+        renderCards(searchField.value);
+      });
 
       editBtnRow.appendChild(editBtn);
       editBtnRow.appendChild(deleteBtn);
@@ -613,13 +617,17 @@ form.addEventListener('submit', async (e) => {
 });
 
 //Deletes a flashcard by its id by sending a request to the backend
-async function deleteCard(id) {
+async function deleteCard(id, onSuccess) {
   const confirmed = await showConfirm('Delete this flashcard?');
   if (!confirmed) return;
 
   try {
     await authFetch(`${backendURL}/flashcards/${id}`, { method: 'DELETE' });
-    loadFlashcards();
+    if (onSuccess) {
+      onSuccess();
+    } else {
+      loadFlashcards();
+    }
   } catch (err) {
     showToast('Could not delete flashcard. Is the server running?');
   }

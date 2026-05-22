@@ -78,6 +78,8 @@ app.post('/login', async (req, res) => {
       expiresIn: `${ACCESS_TOKEN_EXPIRE_MINUTES}m`,
     });
 
+    await db.collection('users').updateOne({ username }, { $set: { lastLogin: new Date() } });
+
     return res.json({ token, user: username });
   } catch (err) {
     console.error(err);
@@ -223,11 +225,32 @@ app.get('/admin/users', async (req, res) => {
     const users = await db.collection('users').find({}, { projection: { password: 0 } }).toArray();
     const result = users.map(u => ({
       username: u.username,
-      role: u.username === 'admin@example.com' ? 'Admin' : 'User'
+      role: u.username === 'admin@example.com' ? 'Admin' : 'User',
+      lastLogin: u.lastLogin || null
     }));
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: 'Error fetching users.' });
+  }
+});
+
+//Admin only: delete a user and all their data
+app.delete('/admin/users/:username', async (req, res) => {
+  if (req.user !== 'admin@example.com') {
+    return res.status(403).json({ error: 'Forbidden: admin only' });
+  }
+  const target = req.params.username;
+  if (target === 'admin@example.com') {
+    return res.status(400).json({ error: 'Cannot delete the admin account.' });
+  }
+  try {
+    await db.collection('users').deleteOne({ username: target });
+    await db.collection('groups').deleteMany({ user_id: target });
+    await db.collection('flashcards').deleteMany({ user_id: target });
+    await db.collection('history').deleteMany({ user_id: target });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Error deleting user.' });
   }
 });
 

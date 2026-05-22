@@ -1,18 +1,22 @@
 :root {
-  --bg: #F2EFE9;
+  --surface: #EDE9E0;
   --accent: #7D6B67;
   --accent-dark: #5a4d4a;
   --card-bg: #FFFFFF;
   --text-dark: #1E2019;
-  --text-light: #F2EFE9;
   --btn-primary: #B09E99;
   --btn-danger: #c0776e;
+  --btn-danger-dark: #a05a52;
   --btn-success: #8aab8e;
+  --error: #ff8a8a;
+  --shadow: rgba(0, 0, 0, 0.4);
+  --overlay: rgba(0, 0, 0, 0.6);
+  --glow-correct: rgba(144, 238, 144, 0.6);
 }
 
 body {
   font-family: system-ui, sans-serif;
-  background-color: var(--bg);
+  background-color: var(--surface);
   color: var(--text-dark);
   text-align: center;
   padding: 20px;
@@ -74,7 +78,7 @@ h2 {
 }
 
 #authSection {
-  background-color: #EDE9E0;
+  background-color: var(--surface);
   padding: 22px 24px;
   border: 1px solid var(--accent);
   border-radius: 12px;
@@ -88,7 +92,7 @@ h2 {
 
 .login-error {
   margin-top: 12px;
-  color: #ff8a8a;
+  color: var(--error);
 }
 
 .hidden {
@@ -150,7 +154,7 @@ input {
   padding: 10px;
   margin: 5px;
   width: 200px;
-  background-color: #FFFFFF;
+  background-color: var(--card-bg);
   border: 1px solid var(--accent);
   color: var(--text-dark);
   border-radius: 5px;
@@ -174,14 +178,14 @@ button {
 
 button:hover {
   background-color: var(--accent-dark);
-  color: var(--text-light);
+  color: var(--surface);
 }
 
 select {
   padding: 10px;
   margin: 5px;
   width: 220px;
-  background-color: #FFFFFF;
+  background-color: var(--card-bg);
   border: 1px solid var(--accent);
   color: var(--text-dark);
   border-radius: 5px;
@@ -210,7 +214,7 @@ select {
   margin: 10px;
   width: 220px;
   border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 6px var(--shadow);
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
@@ -220,15 +224,15 @@ select {
 
 .flashcard:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(176, 158, 153, 0.4);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .btn-primary { background-color: var(--btn-primary); color: var(--text-dark); }
-.btn-primary:hover { background-color: var(--accent-dark); color: var(--text-light); }
+.btn-primary:hover { background-color: var(--accent-dark); color: var(--surface); }
 .btn-success { background-color: var(--btn-success); color: var(--text-dark); }
-.btn-success:hover { background-color: var(--accent-dark); color: var(--text-light); }
-.btn-danger { background-color: var(--btn-danger); color: var(--text-light); }
-.btn-danger:hover { background-color: #a05a52; color: var(--text-light); }
+.btn-success:hover { background-color: var(--accent-dark); color: var(--surface); }
+.btn-danger { background-color: var(--btn-danger); color: var(--surface); }
+.btn-danger:hover { background-color: var(--btn-danger-dark); color: var(--surface); }
 
 .group-btn-container { display: flex; gap: 5px; }
 .randomise-on { background-color: var(--btn-success) !important; }
@@ -237,7 +241,7 @@ select {
 
 #logoutBtn:hover,
 #settingsBtn:hover {
-  background-color: #fff !important;
+  background-color: var(--card-bg) !important;
   color: var(--accent) !important;
   border-color: var(--accent) !important;
 }
@@ -252,7 +256,7 @@ select {
   width: 340px;
   min-height: 340px;
   border-radius: 3px;
-  box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+  box-shadow: 4px 4px 10px var(--shadow);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -261,16 +265,16 @@ select {
 }
 
 .study-flashcard.hover-correct {
-  box-shadow: 0 0 30px 8px rgba(144, 238, 144, 0.6);
+  box-shadow: 0 0 30px 8px var(--glow-correct);
 }
 
 .study-flashcard.hover-wrong {
-  box-shadow: 0 0 30px 8px rgba(255, 150, 150, 0.6);
+  box-shadow: 0 0 30px 8px var(--btn-danger);
 }
 
 @keyframes fadeOutCorrect {
   0% { opacity: 1; transform: scale(1); }
-  40% { opacity: 0.8; transform: scale(1.05); box-shadow: 0 0 40px 12px rgba(144, 238, 144, 0.8); }
+  40% { opacity: 0.8; transform: scale(1.05); box-shadow: 0 0 40px 12px var(--glow-correct); }
   100% { opacity: 0; transform: scale(0.85) translateY(-20px); }
 }
 
@@ -291,7 +295,7 @@ select {
 
 .study-flashcard.wrong-anim {
   animation: shakeWrong 0.6s ease forwards;
-  box-shadow: 0 0 30px 8px rgba(255, 150, 150, 0.7);
+  box-shadow: 0 0 30px 8px var(--btn-danger);
 }
 
 .card-buttons {
@@ -356,12 +360,12 @@ select {
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #c0776e;
-  color: var(--text-light);
+  background-color: var(--btn-danger);
+  color: var(--surface);
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: bold;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 12px var(--shadow);
   z-index: 1000;
   transition: opacity 0.5s ease;
 }
@@ -377,7 +381,7 @@ select {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: var(--overlay);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -389,13 +393,17 @@ select {
 }
 
 .modal-box {
-  background: #EDE9E0;
+  background: var(--surface);
   border: 1px solid var(--accent);
   border-radius: 12px;
   padding: 30px;
   max-width: 340px;
   width: 90%;
   color: var(--text-dark);
+}
+
+#settingsModal .modal-box {
+  max-width: 400px;
 }
 
 .modal-box p {
@@ -412,11 +420,11 @@ select {
 
 .modal-btn-row button:first-child {
   background-color: var(--btn-danger);
-  color: var(--text-light);
+  color: var(--surface);
 }
 
 .modal-btn-row button:first-child:hover {
-  background-color: #a05a52;
+  background-color: var(--btn-danger-dark);
 }
 
 .edit-input {
@@ -425,7 +433,7 @@ select {
   padding: 6px;
   border-radius: 4px;
   border: 1px solid var(--accent-dark);
-  background-color: #f9f6f2;
+  background-color: var(--card-bg);
   color: var(--text-dark);
   font-size: 0.9rem;
 }
